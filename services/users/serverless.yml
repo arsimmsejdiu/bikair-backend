@@ -1,0 +1,163 @@
+service: bikair-users
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  serverless-offline:
+    noPrependStageInUrl: true
+    noAuth: true
+    ignoreJWTSignature: true
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    BASE_URL: ${env:BASE_URL}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    MICROSERVICE_PUSH_NOTIF_USER_ID: ${env:MICROSERVICE_PUSH_NOTIF_USER_ID}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_TAX_RATES: ${env:STRIPE_TAX_RATES}
+    GOOGLE_GEOCODING_API_KEY: ${env:GOOGLE_GEOCODING_API_KEY}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-users:
+    handler: src/functions/get-users.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-user-detail:
+    handler: src/functions/get-user-detail.handler
+    events:
+      - httpApi:
+          path: /{user_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  delete-user:
+    handler: src/functions/delete-user.handler
+    events:
+      - httpApi:
+          path: /
+          method: DELETE
+          authorizer:
+            name: tokenClientAuthorizer
+  put-user:
+    handler: src/functions/put-user.handler
+    events:
+      - httpApi:
+          path: /
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  put-user-id:
+    handler: src/functions/put-user-id.handler
+    events:
+      - httpApi:
+          path: /{user_id}
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-me:
+    handler: src/functions/get-me.handler
+    events:
+      - httpApi:
+          path: /me
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-user-settings:
+    handler: src/functions/get-user-settings.handler
+    events:
+      - httpApi:
+          path: /settings
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-user-discounts:
+    handler: src/functions/get-user-discounts.handler
+    events:
+      - httpApi:
+          path: /discounts
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  create-user-discount:
+    handler: src/functions/create-user-discount.handler
+    events:
+      - httpApi:
+          path: /discounts
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer
+  get-user-rentals:
+    handler: src/functions/get-user-rentals.handler
+    events:
+      - httpApi:
+          path: /rentals
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-user-trips:
+    handler: src/functions/get-user-trips.handler
+    events:
+      - httpApi:
+          path: /trips
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  put-user-settings:
+    handler: src/functions/put-user-settings.handler
+    events:
+      - httpApi:
+          path: /settings
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  post-user-ticket:
+    handler: src/functions/post-user-ticket.handler
+    events:
+      - httpApi:
+          path: /ticket
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer
+  get-user-functionalities:
+    handler: src/functions/get-user-functionalities.handler
+    events:
+      - httpApi:
+          path: /functionalities
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer

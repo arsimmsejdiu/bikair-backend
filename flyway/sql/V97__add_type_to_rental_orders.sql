@@ -1,0 +1,1 @@
+alter table rental_orders add column if not exists type varchar(50) not null;

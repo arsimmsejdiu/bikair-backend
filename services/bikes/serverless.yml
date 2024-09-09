@@ -1,0 +1,174 @@
+service: bikair-bikes
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    GOOGLE_GEOCODING_API_KEY: ${env:GOOGLE_GEOCODING_API_KEY}
+    KEYSAFE_API_KEY: ${env:KEYSAFE_API_KEY}
+    AXA_CLIENT_ID: ${env:AXA_CLIENT_ID}
+    AXA_CLIENT_SECRET: ${env:AXA_CLIENT_SECRET}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-bikes:
+    handler: src/functions/get-bikes.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-bikes:
+    handler: src/functions/put-bikes.handler
+    events:
+      - httpApi:
+          path: /
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-bike-detail:
+    handler: src/functions/get-bike-detail.handler
+    events:
+      - httpApi:
+          path: /detail/{bike_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-bike-position-history:
+    handler: src/functions/get-bikes-position-history.handler
+    events:
+      - httpApi:
+          path: /positions/{bike_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-bikes-nearby:
+    handler: src/functions/get-bikes-nearby.handler
+    events:
+      - httpApi:
+          path: /near-by
+          method: GET
+          authorizer:
+            name: apiAuthorizer
+  get-bikes-technician:
+    handler: src/functions/get-bikes-technician.handler
+    events:
+      - httpApi:
+          path: /technician
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-bikes-user:
+    handler: src/functions/get-bikes-user.handler
+    events:
+      - httpApi:
+          path: /user
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-bikes-availability:
+    handler: src/functions/get-bikes-availability.handler
+    events:
+      - httpApi:
+          path: /availability/{bikeName}
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  put-bikes-address:
+    handler: src/functions/put-bikes-address.handler
+    events:
+      - httpApi:
+          path: /address/{bike_id}
+          method: PUT
+          authorizer:
+            name: tokenAuthorizer
+  put-bikes-position:
+    handler: src/functions/put-bikes-position.handler
+    events:
+      - httpApi:
+          path: /position/{bike_id}
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  post-bikes:
+    handler: src/functions/post-bikes.handler
+    events:
+      - httpApi:
+          path: /
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  post-bikes-fake:
+    handler: src/functions/post-bikes-fake.handler
+    events:
+      - httpApi:
+          path: /fake
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-bike-lock:
+    handler: src/functions/put-bike-lock.handler
+    events:
+      - httpApi:
+          path: /lock
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-bike-tracker:
+    handler: src/functions/put-bike-tracker.handler
+    events:
+      - httpApi:
+          path: /tracker
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-bikes-ekey:
+    handler: src/functions/get-bikes-ekey.handler
+    events:
+      - httpApi:
+          path: /ekeys/{bike_id}
+          method: GET
+          authorizer:
+            name: tokenAuthorizer
+  get-bikes-status:
+    handler: src/functions/get-bikes-status.handler
+    events:
+      - httpApi:
+          path: /status/{bike_name}
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer

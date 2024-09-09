@@ -1,0 +1,1 @@
+alter table user_discounts drop constraint if exists user_discounts_code_ref_discount_id_user_id_key;

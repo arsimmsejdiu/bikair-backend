@@ -1,0 +1,1 @@
+alter table rentals add column if not exists rental_order_id integer not null;

@@ -1,0 +1,84 @@
+service: bikair-discounts
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_TAX_RATES: ${env:STRIPE_TAX_RATES}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-discounts:
+    handler: src/functions/get-discounts.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  post-discounts:
+    handler: src/functions/post-discounts.handler
+    events:
+      - httpApi:
+          path: /
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-discounts:
+    handler: src/functions/put-discounts.handler
+    events:
+      - httpApi:
+          path: /
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-discount:
+    handler: src/functions/get-discount.handler
+    events:
+      - httpApi:
+          path: /{discount_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  delete-discounts:
+    handler: src/functions/delete-discounts.handler
+    events:
+      - httpApi:
+          path: /{discount_id}
+          method: DELETE
+          authorizer:
+            name: tokenAdminAuthorizer

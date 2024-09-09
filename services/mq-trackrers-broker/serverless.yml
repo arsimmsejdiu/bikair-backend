@@ -1,0 +1,50 @@
+service: bikair-mq-trackers-broker
+useDotenv: true
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  timeout: 300
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    GOOGLE_GEOCODING_API_KEY: ${env:GOOGLE_GEOCODING_API_KEY}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):networkInterfacePolicy}
+        - ${file(../../serverless.common.yml):mqPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+functions:
+  microservice:
+    handler: src/functions/update-trackers.handler
+    events:
+      - rabbitmq:
+          arn: arn:aws:mq:eu-west-3:962351136828:broker:TrackerRabbitMQ:b-fcf4831d-2e8d-4bd2-a5bc-182a867ca6f8
+          queue: conneqtech
+          basicAuthArn: arn:aws:secretsmanager:eu-west-3:962351136828:secret:mq/trackers/lambda-q0Ehiz
+

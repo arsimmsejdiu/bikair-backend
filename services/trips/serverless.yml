@@ -1,0 +1,201 @@
+service: bikair-trips
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  serverless-offline:
+    noPrependStageInUrl: true
+    noAuth: true
+    ignoreJWTSignature: true
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 1024
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_TAX_RATES: ${env:STRIPE_TAX_RATES}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    GOOGLE_GEOCODING_API_KEY: ${env:GOOGLE_GEOCODING_API_KEY}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-trips:
+    handler: src/functions/get-trips.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-trips:
+    handler: src/functions/put-trips.handler
+    events:
+      - httpApi:
+          path: /
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-trips-end-coords:
+    handler: src/functions/get-trips-end-coords.handler
+    events:
+      - httpApi:
+          path: /end-coordinates
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-trips-start-coords:
+    handler: src/functions/get-trips-start-coords.handler
+    events:
+      - httpApi:
+          path: /start-coordinates
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-first-trip:
+    handler: src/functions/get-first-trip.handler
+    events:
+      - httpApi:
+          path: /first
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-trip-details:
+    handler: src/functions/get-trip-details.handler
+    events:
+      - httpApi:
+          path: /{id}/details
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-trip-status-history:
+    handler: src/functions/get-trip-status-history.handler
+    events:
+      - httpApi:
+          path: /{id}/status-history
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-trip-current:
+    handler: src/functions/get-trip-current.handler
+    events:
+      - httpApi:
+          path: /current
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-trip-unpaid:
+    handler: src/functions/get-trip-unpaid.handler
+    events:
+      - httpApi:
+          path: /unpaid
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  cancel-trip:
+    handler: src/functions/cancel-trip.handler
+    events:
+      - httpApi:
+          path: /cancel
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  retrieve-payment:
+    handler: src/functions/retrieve-payment.handler
+    events:
+      - httpApi:
+          path: /retrieve-payment
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  pause-trip:
+    handler: src/functions/pause-trip.handler
+    events:
+      - httpApi:
+          path: /pause
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  begin-trip:
+    handler: src/functions/begin-trip.handler
+    events:
+      - httpApi:
+          path: /begin
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer
+  start-trip:
+    handler: src/functions/start-trip.handler
+    events:
+      - httpApi:
+          path: /start
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  end-trip:
+    handler: src/functions/end-trip.handler
+    events:
+      - httpApi:
+          path: /end
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  end-trip-force:
+    handler: src/functions/end-trip-force.handler
+    events:
+      - httpApi:
+          path: /end/force
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  save-trip-photo:
+    handler: src/functions/save-trip-photo.handler
+    events:
+      - httpApi:
+          path: /endPhoto
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  get-trip-price:
+    handler: src/functions/get-trip-price.handler
+    events:
+      - httpApi:
+          path: /price
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-trip-reduction:
+    handler: src/functions/get-trip-reduction.handler
+    events:
+      - httpApi:
+          path: /reduction
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer

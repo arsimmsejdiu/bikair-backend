@@ -1,0 +1,1 @@
+update access_rights set category = 'BIKE_STATUS_READ' where name = 'RENTAL_READ';

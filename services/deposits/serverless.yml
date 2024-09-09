@@ -1,0 +1,68 @@
+service: bikair-deposit
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_TAX_RATES: ${env:STRIPE_TAX_RATES}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-deposit:
+    handler: src/functions/get-deposit.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-deposit:
+    handler: src/functions/put-deposit.handler
+    events:
+      - httpApi:
+          path: /{deposit_id}
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  check-deposit:
+    handler: src/functions/check-deposit.handler
+    events:
+      - httpApi:
+          path: /check-deposit
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer

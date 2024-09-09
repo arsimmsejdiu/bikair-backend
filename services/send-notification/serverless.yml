@@ -1,0 +1,47 @@
+service: bikair-send-notification
+useDotenv: true
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  serverless-offline:
+    noPrependStageInUrl: true
+    noAuth: true
+    ignoreJWTSignature: true
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 15
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    SLACK_TOKEN: ${env:SLACK_TOKEN}
+    SMS_API_TOKEN: ${env:SMS_API_TOKEN}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):emailPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+functions:
+  microservice:
+    handler: src/handler.handler

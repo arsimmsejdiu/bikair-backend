@@ -1,0 +1,25 @@
+{
+  "name": "storage",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start:offline": "serverless offline start --stage develop --httpPort 4000",
+    "build": "npx tsc"
+  },
+  "dependencies": {
+    "@bikairproject/aws": "1.1.2",
+    "@bikairproject/lambda-framework": "2.1.1",
+    "@bikairproject/shared": "2.1.112",
+    "@bikairproject/utils": "3.1.34",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.102",
+    "@types/node": "^18.7.14",
+        "serverless-offline": "^8.8.1",
+    "serverless-plugin-aws-alerts": "^1.7.5",
+    "serverless-plugin-typescript": "^2.1.2",
+    "serverless-prune-plugin": "^2.0.1",
+    "typescript": "^4.7.4"
+  }
+}

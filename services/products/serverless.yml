@@ -1,0 +1,131 @@
+service: bikair-products
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_TAX_RATES: ${env:STRIPE_TAX_RATES}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-products:
+    handler: src/functions/get-products.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-products-available:
+    handler: src/functions/get-products-available.handler
+    events:
+      - httpApi:
+          path: /available
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-product-by-id:
+    handler: src/functions/get-product-by-id.handler
+    events:
+      - httpApi:
+          path: /{product_id}
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-user-subscription-list:
+    handler: src/functions/get-user-subscription-list.handler
+    events:
+      - httpApi:
+          path: /subscriptions
+          method: GET
+          authorizer:
+            name: tokenAuthorizer
+  get-user-subscription-detail:
+    handler: src/functions/get-user-subscription-detail.handler
+    events:
+      - httpApi:
+          path: /subscriptions/{subscription_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-user-subscription:
+    handler: src/functions/put-user-subscription.handler
+    events:
+      - httpApi:
+          path: /subscriptions/{subscription_id}
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-products-user:
+    handler: src/functions/get-products-user.handler
+    events:
+      - httpApi:
+          path: /user
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  post-products-user:
+    handler: src/functions/post-products-user.handler
+    events:
+      - httpApi:
+          path: /user
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer
+  post-cancel-products-user:
+    handler: src/functions/post-cancel-products-user.handler
+    events:
+      - httpApi:
+          path: /user/cancel
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer
+  post-reactivate-products-user:
+    handler: src/functions/post-reactivate-products-user.handler
+    events:
+      - httpApi:
+          path: /user/reactivate
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer
+  post-subscription-retry:
+    handler: src/functions/post-subscription-retry.handler
+    events:
+      - httpApi:
+          path: /subscription/retry
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer

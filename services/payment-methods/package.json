@@ -1,0 +1,25 @@
+{
+  "name": "payment-methods",
+  "version": "1.0.0",
+  "description": "Handle all payment-methods resources",
+  "main": "index.js",
+  "scripts": {
+    "start:offline": "serverless offline start --stage develop --httpPort 4000",
+    "build": "npx tsc"
+  },
+  "dependencies": {
+    "@bikairproject/lambda-utils": "2.0.2",
+    "@bikairproject/lib-manager": "^1.2.12",
+    "@bikairproject/stripe-api": "3.0.6",
+    "sequelize": "^6.25.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.102",
+    "@types/node": "^18.7.14",
+    "serverless-offline": "^8.8.1",
+    "serverless-plugin-aws-alerts": "^1.7.5",
+    "serverless-plugin-typescript": "^2.1.2",
+    "serverless-prune-plugin": "^2.0.1",
+    "typescript": "^4.7.4"
+  }
+}

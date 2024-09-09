@@ -1,0 +1,122 @@
+service: bikair-cities
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-cities:
+    handler: src/functions/get-cities.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: apiAuthorizer
+  get-city-polygons:
+    handler: src/functions/get-city-polygons.handler
+    events:
+      - httpApi:
+          path: /polygons
+          method: GET
+          authorizer:
+            name: apiAuthorizer
+  get-city-red-zones:
+    handler: src/functions/get-city-red-zones.handler
+    events:
+      - httpApi:
+          path: /red-zones
+          method: GET
+          authorizer:
+            name: apiAuthorizer
+  post-check-zones:
+    handler: src/functions/post-check-zones.handler
+    events:
+      - httpApi:
+          path: /check-zones
+          method: POST
+          authorizer:
+            name: tokenAuthorizer
+  post-city-red-zone:
+    handler: src/functions/post-city-red-zone.handler
+    events:
+      - httpApi:
+          path: /red-zones
+          method: POST
+          authorizer:
+            name: tokenAuthorizer
+  post-city-polygon:
+    handler: src/functions/post-city-polygon.handler
+    events:
+      - httpApi:
+          path: /polygons
+          method: POST
+          authorizer:
+            name: tokenAuthorizer
+  get-city-red-zone:
+    handler: src/functions/get-city-red-zone.handler
+    events:
+      - httpApi:
+          path: /red-zone/{city_id}
+          method: GET
+          authorizer:
+            name: tokenAuthorizer
+  get-city-polygon:
+    handler: src/functions/get-city-polygon.handler
+    events:
+      - httpApi:
+          path: /polygon/{city_id}
+          method: GET
+          authorizer:
+            name: tokenAuthorizer
+  delete-city-polygon:
+    handler: src/functions/delete-city-polygon.handler
+    events:
+      - httpApi:
+          path: /polygon/{city_id}
+          method: DELETE
+          authorizer:
+            name: tokenAuthorizer
+  delete-city-red-zone:
+    handler: src/functions/delete-city-red-zone.handler
+    events:
+      - httpApi:
+          path: /red-zone/{city_id}
+          method: DELETE
+          authorizer:
+            name: tokenAuthorizer

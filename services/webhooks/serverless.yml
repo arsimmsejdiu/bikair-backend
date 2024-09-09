@@ -1,0 +1,61 @@
+service: bikair-webhook
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    MICROSERVICE_PUSH_NOTIF_USER_ID: ${env:MICROSERVICE_PUSH_NOTIF_USER_ID}
+    STRIPE_SECRET_KEY: ${env:STRIPE_SECRET_KEY}
+    STRIPE_TAX_RATES: ${env:STRIPE_TAX_RATES}
+    CRISP_IDENTIFIER: ${env:CRISP_IDENTIFIER}
+    CRISP_KEY: ${env:CRISP_KEY}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+functions:
+  webhook:
+    handler: src/handler.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors: ${file(../../serverless.common.yml):corsHttpConfig}
+          authorizer: ${file(../../serverless.common.yml):apiQueryAuthorizer}
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors: ${file(../../serverless.common.yml):corsHttpConfig}
+          authorizer: ${file(../../serverless.common.yml):apiQueryAuthorizer}
+resources:
+  Resources: ${file(../../serverless.common.yml):corsResources}

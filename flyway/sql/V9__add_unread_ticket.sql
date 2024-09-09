@@ -1,0 +1,1 @@
+ALTER TABLE user_settings ADD COLUMN IF NOT EXISTS unread_tickets INTEGER DEFAULT 0;

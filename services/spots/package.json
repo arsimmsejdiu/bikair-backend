@@ -1,0 +1,30 @@
+{
+    "name": "spots",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start:offline": "serverless offline start --stage develop --httpPort 4000",
+        "build": "npx tsc"
+    },
+    "dependencies": {
+        "@bikairproject/google-api": "2.0.17",
+        "@bikairproject/lambda-utils": "2.0.2",
+        "@bikairproject/lib-manager": "^1.2.20",
+        "@turf/turf": "^6.5.0",
+        "aws-multipart-parser": "^0.2.1",
+        "i": "^0.3.7",
+        "npm": "^9.2.0",
+        "sequelize": "^6.25.0"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "^8.10.102",
+        "@types/node": "^18.7.14",
+        "serverless-apigw-binary": "^0.4.4",
+        "serverless-offline": "^8.8.1",
+        "serverless-plugin-aws-alerts": "^1.7.5",
+        "serverless-plugin-typescript": "^2.1.2",
+        "serverless-prune-plugin": "^2.0.1",
+        "typescript": "^4.7.4"
+    }
+}

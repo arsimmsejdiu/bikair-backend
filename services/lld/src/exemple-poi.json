@@ -1,0 +1,412 @@
+{
+  "poi_id": 22,
+  "pk_id": 22,
+  "poi_type": "client",
+  "type": "client",
+  "poi_name": "email@amazon.com",
+  "name": "email@amazon.com",
+  "poi_typeid": 1,
+  "type_id": 1,
+  "poi_typeslug": "client",
+  "typeslug": "client",
+  "poi_icon": "1",
+  "icon": "1",
+  "poi_color": "#ff8647",
+  "color": "#ff8647",
+  "poi_visibility": "private",
+  "visibility": "private",
+  "poi_structure": "{\"references\":[{\"poi\":\"velo\"},{\"poi\":\"intervention\"},{\"poi\":\"reservation\"}],\"fields\":[{\"title\":\"Nom\",\"type\":\"text\"},{\"title\":\"Prénom\",\"type\":\"\"},{\"title\":\"Adresse\",\"type\":\"location\"},{\"title\":\"documents\",\"type\":\"medias\"}]}",
+  "structure": "{\"references\":[{\"poi\":\"velo\"},{\"poi\":\"intervention\"},{\"poi\":\"reservation\"}],\"fields\":[{\"title\":\"Nom\",\"type\":\"text\"},{\"title\":\"Prénom\",\"type\":\"\"},{\"title\":\"Adresse\",\"type\":\"location\"},{\"title\":\"documents\",\"type\":\"medias\"}]}",
+  "fields": [
+    {
+      "field_id": "554",
+      "field_type": "text",
+      "field_title": "Nom",
+      "field_content": "A",
+      "pk_id": "554",
+      "type": "text",
+      "title": "Nom",
+      "content": "A"
+    },
+    {
+      "field_id": "555",
+      "field_type": "text",
+      "field_title": "Prénom",
+      "field_content": "Nicolas",
+      "pk_id": "555",
+      "type": "text",
+      "title": "Prénom",
+      "content": "Nicolas"
+    },
+    {
+      "field_id": "556",
+      "field_type": "phone",
+      "field_title": "Téléphone",
+      "field_content": "+330699999999",
+      "pk_id": "556",
+      "type": "phone",
+      "title": "Téléphone",
+      "content": "+330699999999"
+    },
+    {
+      "field_id": "557",
+      "field_type": "email",
+      "field_title": "Email",
+      "field_content": "nicolas@apx-dev.com",
+      "pk_id": "557",
+      "type": "email",
+      "title": "Email",
+      "content": "nicolas@apx-dev.com"
+    },
+    {
+      "field_id": "558",
+      "field_type": "location",
+      "field_title": "Adresse",
+      "field_content": "70-84 Rue Vaneaux",
+      "pk_id": "558",
+      "type": "location",
+      "title": "Adresse",
+      "content": "70-84 Rue Vaneaux"
+    },
+    {
+      "field_id": "559",
+      "field_type": "postcode",
+      "field_title": "Code postal",
+      "field_content": "75007",
+      "pk_id": "559",
+      "type": "postcode",
+      "title": "Code postal",
+      "content": "75007"
+    },
+    {
+      "field_id": "560",
+      "field_type": "city",
+      "field_title": "Ville",
+      "field_content": "Paris",
+      "pk_id": "560",
+      "type": "city",
+      "title": "Ville",
+      "content": "Paris"
+    },
+    {
+      "field_id": "563",
+      "field_type": "medias",
+      "field_title": "documents",
+      "field_content": "[19,11]",
+      "pk_id": "563",
+      "type": "medias",
+      "title": "documents",
+      "content": "[19,11]"
+    },
+    {
+      "field_id": "564",
+      "field_type": "country",
+      "field_title": "country",
+      "field_content": "France",
+      "pk_id": "564",
+      "type": "country",
+      "title": "country",
+      "content": "France"
+    },
+    {
+      "field_id": "565",
+      "field_type": "postcode",
+      "field_title": "postcode",
+      "field_content": "58640",
+      "pk_id": "565",
+      "type": "postcode",
+      "title": "postcode",
+      "content": "58640"
+    },
+    {
+      "field_id": "566",
+      "field_type": "city",
+      "field_title": "city",
+      "field_content": "Varennes-Vauzelles",
+      "pk_id": "566",
+      "type": "city",
+      "title": "city",
+      "content": "Varennes-Vauzelles"
+    },
+    {
+      "field_id": "567",
+      "field_type": "address",
+      "field_title": "address",
+      "field_content": "7 rue Marcel robin",
+      "pk_id": "567",
+      "type": "address",
+      "title": "address",
+      "content": "7 rue Marcel robin"
+    },
+    {
+      "field_id": "568",
+      "field_type": "latitude",
+      "field_title": "latitude",
+      "field_content": "48.878577",
+      "pk_id": "568",
+      "type": "latitude",
+      "title": "latitude",
+      "content": "48.878577"
+    },
+    {
+      "field_id": "569",
+      "field_type": "longitude",
+      "field_title": "longitude",
+      "field_content": "2.370575",
+      "pk_id": "569",
+      "type": "longitude",
+      "title": "longitude",
+      "content": "2.370575"
+    }
+  ],
+  "references": [
+    {
+      "parent_id": "1",
+      "parent_type": "velo",
+      "parent_name": "Mon vélo de test",
+      "pk_id": "1",
+      "type": "velo",
+      "name": "Mon vélo de test",
+      "type_id": "3",
+      "type_slug": "velo"
+    },
+    {
+      "parent_id": "9",
+      "parent_type": "intervention",
+      "parent_name": "test inter",
+      "pk_id": "9",
+      "type": "intervention",
+      "name": "test inter",
+      "type_id": "5",
+      "type_slug": "intervention"
+    }
+  ],
+  "children": [
+    {
+      "children_id": "31",
+      "children_type": "reservation",
+      "children_name": "email@appple.com",
+      "pk_id": "31",
+      "type": "reservation",
+      "name": "email@appple.com",
+      "type_id": "4",
+      "type_slug": "reservation"
+    },
+    {
+      "children_id": "32",
+      "children_type": "reservation",
+      "children_name": "email@amazon.com",
+      "pk_id": "32",
+      "type": "reservation",
+      "name": "email@amazon.com",
+      "type_id": "4",
+      "type_slug": "reservation"
+    }
+  ],
+  "reports": [],
+  "iconlink": "https://api.geolokit.ai/file/1?current_workspace_id=163&token=$2b$04$TlAPgrU4O1qi9zOeSEuh8eP7/IkxYBax8ECIbETJ2SmbFnRSaAQDi"
+}
+
+{
+  "poi_id": 36,
+  "pk_id": 36,
+  "poi_type": "reservation",
+  "type": "reservation",
+  "poi_name": "Nicolas A",
+  "name": "Nicolas A",
+  "poi_typeid": 4,
+  "type_id": 4,
+  "poi_typeslug": "reservation",
+  "typeslug": "reservation",
+  "poi_icon": "3",
+  "icon": "3",
+  "poi_color": "#8d4fcf",
+  "color": "#8d4fcf",
+  "poi_visibility": "private",
+  "visibility": "private",
+  "poi_structure": "{\"references\":[{\"poi\":\"velo\"},{\"poi\":\"client\"}],\"fields\":[{\"title\":\"Date\",\"type\":\"date\"},{\"title\":\"Statut\",\"type\":\"select\",\"options\":[{\"title\":\"Pré-réservation\",\"slug\":\"pr-rservation\"},{\"title\":\"Réservation confirmée\",\"slug\":\"rservation-confirme\"}]},{\"title\":\"Lieu de retrait\",\"type\":\"location\"},{\"title\":\"Notes\",\"type\":\"textarea\"},{\"title\":\"Techniciens\",\"type\":\"users\"},{\"title\":\"Documents\",\"type\":\"medias\"}]}",
+  "structure": "{\"references\":[{\"poi\":\"velo\"},{\"poi\":\"client\"}],\"fields\":[{\"title\":\"Date\",\"type\":\"date\"},{\"title\":\"Statut\",\"type\":\"select\",\"options\":[{\"title\":\"Pré-réservation\",\"slug\":\"pr-rservation\"},{\"title\":\"Réservation confirmée\",\"slug\":\"rservation-confirme\"}]},{\"title\":\"Lieu de retrait\",\"type\":\"location\"},{\"title\":\"Notes\",\"type\":\"textarea\"},{\"title\":\"Techniciens\",\"type\":\"users\"},{\"title\":\"Documents\",\"type\":\"medias\"}]}",
+  "fields": [
+    {
+      "field_id": "634",
+      "field_type": "text",
+      "field_title": "Email",
+      "field_content": "email@microsoft.com",
+      "pk_id": "634",
+      "type": "text",
+      "title": "Email",
+      "content": "email@microsoft.com"
+    },
+    {
+      "field_id": "635",
+      "field_type": "text",
+      "field_title": "Type",
+      "field_content": "Vélo",
+      "pk_id": "635",
+      "type": "text",
+      "title": "Type",
+      "content": "Vélo"
+    },
+    {
+      "field_id": "636",
+      "field_type": "datestart",
+      "field_title": "Date de départ",
+      "field_content": "2023-05-31T00:00:00.000Z",
+      "pk_id": "636",
+      "type": "datestart",
+      "title": "Date de départ",
+      "content": "2023-05-31T00:00:00.000Z"
+    },
+    {
+      "field_id": "637",
+      "field_type": "dateend",
+      "field_title": "Date de départ",
+      "field_content": "2023-07-31T00:00:00.000Z",
+      "pk_id": "637",
+      "type": "dateend",
+      "title": "Date de départ",
+      "content": "2023-07-31T00:00:00.000Z"
+    },
+    {
+      "field_id": "638",
+      "field_type": "text",
+      "field_title": "Durée",
+      "field_content": "2",
+      "pk_id": "638",
+      "type": "text",
+      "title": "Durée",
+      "content": "2"
+    },
+    {
+      "field_id": "639",
+      "field_type": "text",
+      "field_title": "Nom",
+      "field_content": "CNI",
+      "pk_id": "639",
+      "type": "text",
+      "title": "Nom",
+      "content": "CNI"
+    },
+    {
+      "field_id": "640",
+      "field_type": "text",
+      "field_title": "Remise",
+      "field_content": "NULL",
+      "pk_id": "640",
+      "type": "text",
+      "title": "Remise",
+      "content": "NULL"
+    },
+    {
+      "field_id": "641",
+      "field_type": "text",
+      "field_title": "Type de remise",
+      "field_content": "NULL",
+      "pk_id": "641",
+      "type": "text",
+      "title": "Type de remise",
+      "content": "NULL"
+    },
+    {
+      "field_id": "642",
+      "field_type": "text",
+      "field_title": "Moyen de payment",
+      "field_content": "Espèces",
+      "pk_id": "642",
+      "type": "text",
+      "title": "Moyen de payment",
+      "content": "Espèces"
+    },
+    {
+      "field_id": "643",
+      "field_type": "address",
+      "field_title": "Adresse",
+      "field_content": "56 rue de l'arrêt",
+      "pk_id": "643",
+      "type": "address",
+      "title": "Adresse",
+      "content": "56 rue de l'arrêt"
+    },
+    {
+      "field_id": "644",
+      "field_type": "postcode",
+      "field_title": "Code postal",
+      "field_content": "58000",
+      "pk_id": "644",
+      "type": "postcode",
+      "title": "Code postal",
+      "content": "58000"
+    },
+    {
+      "field_id": "645",
+      "field_type": "city",
+      "field_title": "Ville",
+      "field_content": "Nevers",
+      "pk_id": "645",
+      "type": "city",
+      "title": "Ville",
+      "content": "Nevers"
+    },
+    {
+      "field_id": "646",
+      "field_type": "location",
+      "field_title": "Adresse",
+      "field_content": "56 rue de l'arrêt",
+      "pk_id": "646",
+      "type": "location",
+      "title": "Adresse",
+      "content": "56 rue de l'arrêt"
+    },
+    {
+      "field_id": "647",
+      "field_type": "postcode",
+      "field_title": "postcode",
+      "field_content": "58000",
+      "pk_id": "647",
+      "type": "postcode",
+      "title": "postcode",
+      "content": "58000"
+    },
+    {
+      "field_id": "648",
+      "field_type": "city",
+      "field_title": "city",
+      "field_content": "Nevers",
+      "pk_id": "648",
+      "type": "city",
+      "title": "city",
+      "content": "Nevers"
+    },
+    {
+      "field_id": "649",
+      "field_type": "medias",
+      "field_title": "documents",
+      "field_content": "24,25",
+      "pk_id": "649",
+      "type": "medias",
+      "title": "documents",
+      "content": "24,25"
+    },
+    {
+      "pk_id": null,
+      "type": "medias",
+      "title": "Documents",
+      "content": "[25]"
+    }
+  ],
+  "references": [
+    {
+      "parent_id": "34",
+      "parent_type": "client",
+      "parent_name": "Eric A",
+      "pk_id": "34",
+      "type": "client",
+      "name": "Eric A",
+      "type_id": "1",
+      "type_slug": "client"
+    }
+  ],
+  "children": [],
+  "reports": [],
+  "iconlink":"https://api.geolokit.ai/file/3?current_workspace_id: 163
+token: $2b$04$kfx7PZYsoC936yg2T/qddenflg35H6kQMBo8Py7cwaZ6VgDFU5SiO"}

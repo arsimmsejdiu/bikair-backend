@@ -1,0 +1,204 @@
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  lambdaHashingVersion: 20201221
+
+logGroupPolicy:
+  Effect: Allow
+  Action:
+    - logs:CreateLogGroup
+    - logs:CreateLogStream
+    - logs:PutLogEvents
+  Resource: '*'
+networkInterfacePolicy:
+  Effect: Allow
+  Action:
+    - ec2:CreateNetworkInterface
+    - ec2:DescribeNetworkInterfaces
+    - ec2:DescribeVpcs
+    - ec2:DeleteNetworkInterface
+    - ec2:DescribeSubnets
+    - ec2:DescribeSecurityGroups
+  Resource: '*'
+mqPolicy:
+  Effect: Allow
+  Action:
+    - mq:DescribeBroker
+  Resource: '*'
+emailPolicy:
+  Effect: Allow
+  Action:
+    - ses:SendRawEmail
+  Resource: '*'
+eventBridge:
+  Effect: Allow
+  Action:
+    - events:PutRule
+    - events:PutTargets
+    - events:RemoveTargets
+    - events:DeleteRule
+  Resource: '*'
+lambdaPolicy:
+  Effect: Allow
+  Action:
+    - lambda:AddPermission
+    - lambda:RemovePermission
+  Resource: '*'
+s3Policy:
+  Effect: Allow
+  Action:
+    - s3:PutObject
+    - s3:GetObject
+    - s3:PutObjectTagging
+  Resource:
+    - 'arn:aws:s3:::end-trip-photo/*'
+    - 'arn:aws:s3:::report-photos/*'
+    - 'arn:aws:s3:::bikair-photos/*'
+logQueryPolicy:
+  Effect: Allow
+  Action:
+    - logs:StartQuery
+    - logs:GetQueryResults
+  Resource:
+    - 'arn:aws:logs:eu-west-3:962351136828:log-group:*:*'
+ipSetPolicy:
+  Effect: Allow
+  Action:
+    - wafv2:GetIPSet
+    - wafv2:UpdateIPSet
+  Resource:
+    - 'arn:aws:wafv2:eu-west-3:962351136828:regional/ipset/Blocked_IPs/2044a683-ab36-4ded-87b3-89ff8bb7ebe7'
+secretPolicy:
+  Effect: Allow
+  Action:
+    - secretsmanager:GetResourcePolicy
+    - secretsmanager:GetSecretValue
+  Resource: arn:aws:secretsmanager:${self:provider.region}:962351136828:secret:secret/rds/${self:custom.stage}*
+invokeNotificationPolicy:
+  Effect: Allow
+  Action:
+    - lambda:InvokeFunction
+    - lambda:InvokeAsync
+  Resource:
+    - arn:aws:lambda:${self:provider.region}:962351136828:function:${env:MICROSERVICE_NOTIFICATION}
+    - arn:aws:lambda:${self:provider.region}:962351136828:function:${env:MICROSERVICE_PUSH_NOTIF_USER_ID}
+
+vpc:
+  securityGroupIds:
+    - sg-4119fe2a
+    - sg-0410dce06378ed1ed
+  subnetIds:
+    - subnet-08fe9fd03deb60e07
+    - subnet-0d15bf166dd051b86
+
+includes:
+  patterns:
+    - '!node_modules/**'
+    - 'node_modules/bikair-*/**'
+
+httpApiConfig:
+  metrics: true
+  cors:
+    allowedOrigins:
+      - '*'
+    allowedHeaders:
+      - 'Content-Type'
+      - 'Authorization'
+      - 'x-api-key'
+      - 'x-app-version'
+      - 'x-brand'
+      - 'x-device'
+      - 'x-locale'
+      - 'x-origin'
+      - 'x-os-version'
+  disableDefaultEndpoint: true
+  authorizers:
+    tokenAuthorizer:
+      functionArn: arn:aws:lambda:${self:provider.region}:962351136828:function:bikair-authorizer-v2-${self:custom.stage}-token
+      managedExternally: false
+      identitySource: $request.header.Authorization, $request.header.x-api-key, $request.header.x-origin
+      type: request
+    tokenAdminAuthorizer:
+      functionArn: arn:aws:lambda:${self:provider.region}:962351136828:function:bikair-authorizer-v2-${self:custom.stage}-tokenAdmin
+      managedExternally: false
+      identitySource: $request.header.Authorization, $request.header.x-api-key, $request.header.x-origin
+      type: request
+    tokenClientAuthorizer:
+      functionArn: arn:aws:lambda:${self:provider.region}:962351136828:function:bikair-authorizer-v2-${self:custom.stage}-tokenClient
+      managedExternally: false
+      identitySource: $request.header.Authorization, $request.header.x-api-key, $request.header.x-origin
+      type: request
+    apiAuthorizer:
+      functionArn: arn:aws:lambda:eu-west-3:962351136828:function:bikair-authorizer-v2-${self:custom.stage}-apiKey
+      managedExternally: false
+      identitySource: $request.header.x-api-key, $request.header.x-origin
+      type: request
+      resultTtlInSeconds: 0
+    apiQueryAuthorizer:
+      functionArn: arn:aws:lambda:eu-west-3:962351136828:function:bikair-authorizer-v2-${self:custom.stage}-apiKeyQuery
+      managedExternally: false
+      identitySource: null
+      type: request
+      resultTtlInSeconds: 0
+
+tokenAuthorizer:
+  arn: arn:aws:lambda:${self:provider.region}:962351136828:function:bikair-authorizer-${self:custom.stage}-token
+  managedExternally: false
+  identitySource: method.request.header.Authorization, method.request.header.x-api-key, method.request.header.x-origin
+  type: request
+tokenAdminAuthorizer:
+  arn: arn:aws:lambda:${self:provider.region}:962351136828:function:bikair-authorizer-${self:custom.stage}-tokenAdmin
+  managedExternally: false
+  identitySource: method.request.header.Authorization, method.request.header.x-api-key, method.request.header.x-origin
+  type: request
+tokenClientAuthorizer:
+  arn: arn:aws:lambda:${self:provider.region}:962351136828:function:bikair-authorizer-${self:custom.stage}-tokenClient
+  managedExternally: false
+  identitySource: method.request.header.Authorization, method.request.header.x-api-key, method.request.header.x-origin
+  type: request
+apiAuthorizer:
+  arn: arn:aws:lambda:eu-west-3:962351136828:function:bikair-authorizer-${self:custom.stage}-apiKey
+  managedExternally: false
+  identitySource: method.request.header.x-api-key, method.request.header.x-origin
+  type: request
+  resultTtlInSeconds: 0
+apiQueryAuthorizer:
+  arn: arn:aws:lambda:eu-west-3:962351136828:function:bikair-authorizer-${self:custom.stage}-apiKeyQuery
+  managedExternally: false
+  identitySource: null
+  type: request
+  resultTtlInSeconds: 0
+
+corsHttpConfig:
+  origins: '*'
+  headers:
+    - Content-Type
+    - Authorization
+    - x-api-key
+    - x-app-version
+    - x-brand
+    - x-device
+    - x-locale
+    - x-origin
+    - x-os-version
+  allowCredentials: true
+corsResources:
+  GatewayResponseDefault4XX:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+      ResponseType: DEFAULT_4XX
+      RestApiId:
+        Ref: 'ApiGatewayRestApi'
+  GatewayResponseDefault5XX:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+      ResponseType: DEFAULT_5XX
+      RestApiId:
+        Ref: 'ApiGatewayRestApi'

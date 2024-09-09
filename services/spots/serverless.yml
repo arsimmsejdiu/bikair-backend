@@ -1,0 +1,119 @@
+service: bikair-spots
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  serverless-offline:
+    noPrependStageInUrl: true
+    noAuth: true
+    ignoreJWTSignature: true
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+  apigwBinary:
+    types:
+      - 'multipart/form-data'
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    GOOGLE_GEOCODING_API_KEY: ${env:GOOGLE_GEOCODING_API_KEY}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+  apiGateway:
+    binaryMediaTypes:
+      - 'multipart/form-data'
+functions:
+  get-spots:
+    handler: src/functions/get-spots.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-spots-nearby:
+    handler: src/functions/get-spots-nearby.handler
+    events:
+      - httpApi:
+          path: /near-by
+          method: GET
+          authorizer:
+            name: apiAuthorizer
+  create-spots:
+    handler: src/functions/create-spots.handler
+    events:
+      - httpApi:
+          path: /
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  update-spots:
+    handler: src/functions/update-spots.handler
+    events:
+      - httpApi:
+          path: /
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-spot:
+    handler: src/functions/get-spot.handler
+    events:
+      - httpApi:
+          path: /{spot_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  delete-spots:
+    handler: src/functions/delete-spots.handler
+    events:
+      - httpApi:
+          path: /{spot_id}
+          method: DELETE
+          authorizer:
+            name: tokenAdminAuthorizer
+  update-bulk-spots-polygon:
+    handler: src/functions/update-bulk-spots-polygon.handler
+    timeout: 300
+    events:
+      - httpApi:
+          path: /bulk-update
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  upload-csv-spots:
+    handler: src/functions/upload-csv-spots.handler
+    timeout: 300
+    events:
+      - httpApi:
+          path: /upload-csv-spots
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer

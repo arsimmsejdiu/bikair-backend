@@ -1,0 +1,114 @@
+service: bikair-push-notification-api
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 180
+  versionFunctions: false
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    TYPE: ${env:APP_NOTIFY_TYPE}
+    PROJECT_ID: ${env:APP_NOTIFY_PROJECT_ID}
+    PRIVATE_KEY_ID: ${env:APP_NOTIFY_PRIVATE_KEY_ID}
+    PRIVATE_KEY: ${env:APP_NOTIFY_PRIVATE_KEY}
+    CLIENT_EMAIL: ${env:APP_NOTIFY_CLIENT_EMAIL}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  update-token:
+    handler: src/functions/update-token.handler
+    events:
+      - httpApi:
+          path: /update-token
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  push-notification:
+    handler: src/functions/push-notification.handler
+    events:
+      - httpApi:
+          path: /send-notification
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-topics:
+    handler: src/functions/put-topics.handler
+    events:
+      - httpApi:
+          path: /topics
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  push-by-user-id:
+    handler: src/functions/push-by-user-id.handler
+    events:
+      - httpApi:
+          path: /by-user-id
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-notifications:
+    handler: src/functions/get-notifications.handler
+    events:
+      - httpApi:
+          path: /list
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-user-notifications:
+    handler: src/functions/get-user-notifications.handler
+    events:
+      - httpApi:
+          path: /user
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  get-user-notification-by-id:
+    name: push-notification-api-${opt:stage}-get-notification-by-id
+    handler: src/functions/get-user-notification-by-id.handler
+    events:
+      - httpApi:
+          path: /user/{id}
+          method: GET
+          authorizer:
+            name: tokenClientAuthorizer
+  put-user-notifications:
+    handler: src/functions/put-user-notifications.handler
+    events:
+      - httpApi:
+          path: /user/{id}
+          method: PUT
+          authorizer:
+            name: tokenClientAuthorizer
+  save-notification:
+    handler: src/functions/save-notification.handler
+    timeout: 400

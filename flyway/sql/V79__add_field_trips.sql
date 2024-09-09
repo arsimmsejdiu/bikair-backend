@@ -1,0 +1,2 @@
+
+ALTER TABLE trips ADD column IF NOT EXISTS refund_amount INTEGER NOT NULL DEFAULT 0;

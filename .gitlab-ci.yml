@@ -1,0 +1,355 @@
+image: mlozach/node-serverless-aws:latest
+
+stages:
+  - migration
+  - deploy
+  # - test-integration
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "main"
+      variables:
+        SERVERLESS_STAGE: 'production'
+    - if: $CI_COMMIT_REF_NAME == "staging"
+      variables:
+        SERVERLESS_STAGE: 'staging'
+    - if: $CI_COMMIT_REF_NAME == "develop"
+      variables:
+        SERVERLESS_STAGE: 'develop'
+
+.deploy_microservice:
+  stage: deploy
+  script:
+    - echo $SERVERLESS_STAGE
+    - echo $BUILD_DIRECTORY
+    - pwd
+    - cd $BUILD_DIRECTORY
+    - npm install -g serverless serverless-apigw-binary serverless-domain-manager serverless-offline serverless-plugin-aws-alerts serverless-plugin-typescript serverless-prune-plugin
+    - npm install --production
+    - serverless deploy --stage $SERVERLESS_STAGE
+  environment: $SERVERLESS_STAGE
+
+#### FLYWAY
+
+# database-migrate:
+#   stage: migration
+#   # tags:
+#   #   - flyway
+#   variables:
+#     BUILD_DIRECTORY: 'flyway'
+#     FLYWAY_CONFIG_FILES: 'conf/flyway-$SERVERLESS_STAGE.conf'
+#   script:
+#     - echo "$SERVERLESS_STAGE"
+#     - echo "$BUILD_DIRECTORY"
+#     - echo "$FLYWAY_CONFIG_FILES"
+#     - pwd
+#     - cd "$BUILD_DIRECTORY"
+#     - pwd
+#     - chmod a+x flyway
+#     - ./flyway -configFiles="$FLYWAY_CONFIG_FILES" migrate
+#   environment: $SERVERLESS_STAGE
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "push"'
+#       changes:
+#         - flyway/**/*
+
+#### SERVICES
+
+deploy-admins:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/admins'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/admins/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_ADMINS'
+
+deploy-authenticate:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/authenticate'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/authenticate/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_AUTHENTICATE'
+
+deploy-authorizer:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/authorizer'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/authorizer/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_AUTHORIZER'
+
+deploy-bikes:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/bikes'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/bikes/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_BIKES'
+
+deploy-booking:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/booking'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/booking/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_BOOKING'
+
+deploy-cities:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/cities'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/cities/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_CITIES'
+
+deploy-deposits:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/deposits'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/deposits/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_DEPOSITS'
+
+deploy-discounts:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/discounts'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/discounts/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_DISCOUNTS'
+
+deploy-event-log:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/event-log'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/event-log/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_EVENT_LOG'
+
+deploy-lld:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/lld'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/lld/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_LLD'
+
+deploy-locks:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/locks'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/locks/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_LOCKS'
+
+deploy-marketings:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/marketings'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/marketings/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_MARKETINGS'
+
+deploy-mq-trackrers-broker:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/mq-trackrers-broker'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/mq-trackrers-broker/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_MQ_TRACKRERS_BROKER'
+
+deploy-payment-methods:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/payment-methods'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/payment-methods/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_PAYMENT_METHODS'
+
+deploy-products:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/products'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/products/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_PRODUCTS'
+
+deploy-push-notification:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/push-notification'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/push-notification/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_PUSH_NOTIFICATION'
+
+deploy-refresh-token:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/refresh-token'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/refresh-token/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_REFRESH_TOKEN'
+
+deploy-reports:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/reports'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/reports/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_REPORTS'
+
+deploy-reviews:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/reviews'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/reviews/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_REVIEWS'
+
+deploy-roles:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/roles'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/roles/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_ROLES'
+
+deploy-send-notification:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/send-notification'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/send-notification/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_SEND_NOTIFICATION'
+
+deploy-spots:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/spots'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/spots/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_SPOTS'
+
+deploy-storage:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/storage'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/storage/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_STORAGE'
+
+deploy-trips:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/trips'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/trips/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_TRIPS'
+
+deploy-users:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/users'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/users/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_USERS'
+
+deploy-webhooks:
+  extends: .deploy_microservice
+  variables:
+    BUILD_DIRECTORY: 'services/webhooks'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      changes:
+        - services/webhooks/**/*
+    - if: '$DEPLOY_ALL'
+    - if: '$DEPLOY_WEBHOOKS'
+# automated-api-tests:
+#   rules:
+#     - if: $CI_COMMIT_REF_NAME == "staging"
+#   stage: test-integration
+#   image: cimg/base:2021.04
+#   before_script:
+#     - curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+#   script:
+#     - postman login --with-api-key $POSTMAN_API_KEY
+#     - postman collection run "23401361-184963fb-c608-45d8-acd9-71c62b93505f" -e "23401361-64ffcc1e-94fe-4161-9d52-0e6951f52e0b"
+#     - postman collection run "23401361-6a4b243b-3c2f-42fb-bf7a-0a744238be86" -e "23401361-64ffcc1e-94fe-4161-9d52-0e6951f52e0b"
+#     - postman collection run "23401361-a0880832-c520-45d7-8ddd-fdc1a8c3d08e" -e "23401361-64ffcc1e-94fe-4161-9d52-0e6951f52e0b"
+#     - postman collection run "23401361-0d284198-2397-4789-865c-d09c369b8777" -e "23401361-64ffcc1e-94fe-4161-9d52-0e6951f52e0b"

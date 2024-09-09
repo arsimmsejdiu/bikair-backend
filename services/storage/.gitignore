@@ -1,0 +1,14 @@
+node_modules
+.serverless
+.build
+
+
+*.DS_Store
+
+env.*.yml
+.env
+
+.idea
+logs
+
+.build

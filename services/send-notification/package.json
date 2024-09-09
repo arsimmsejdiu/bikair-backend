@@ -1,0 +1,25 @@
+{
+  "name": "microservice-send-notification",
+  "version": "1.0.0",
+  "description": "Microservice to send mail.",
+  "scripts": {
+    "start:offline": "serverless offline start --stage develop --httpPort 4000",
+    "build": "npx tsc"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.163.0",
+    "@slack/web-api": "^6.9.0",
+    "axios": "^0.27.2",
+    "nodemailer": "^6.7.8"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.102",
+    "@types/node": "^18.7.14",
+    "@types/nodemailer": "^6.4.5",
+    "serverless-offline": "^8.8.1",
+    "serverless-plugin-aws-alerts": "^1.7.5",
+    "serverless-plugin-typescript": "^2.1.2",
+    "serverless-prune-plugin": "^2.0.1",
+    "typescript": "^4.7.4"
+  }
+}

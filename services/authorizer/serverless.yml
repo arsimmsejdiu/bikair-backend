@@ -1,0 +1,50 @@
+service: bikair-authorizer-v2
+useDotenv: true
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 5
+  environment:
+    JWT_SECRET: ${env:JWT_SECRET}
+    JWT_SECRET_ADMIN: ${env:JWT_SECRET_ADMIN}
+    NODE_ENV: ${env:NODE_ENV}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+functions:
+  apiKey:
+    handler: src/handlers/apiKeyAuthorizer.handler
+  apiKeyQuery:
+    handler: src/handlers/apiKeyQueryAuthorizer.handler
+  token:
+    handler: src/handlers/tokenAuthorizer.handler
+  tokenAdmin:
+    handler: src/handlers/tokenAdminAuthorizer.handler
+  tokenClient:
+    handler: src/handlers/tokenClientAuthorizer.handler

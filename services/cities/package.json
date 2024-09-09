@@ -1,0 +1,24 @@
+{
+  "name": "cities",
+  "version": "1.0.0",
+  "description": "Handle all cities resources",
+  "main": "index.js",
+  "scripts": {
+    "start:offline": "serverless offline start --stage develop --httpPort 4000",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc"
+  },
+  "dependencies": {
+    "@bikairproject/lib-manager": "^1.2.25",
+    "sequelize": "^6.25.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.119",
+    "@types/node": "^20.3.3",
+    "serverless-offline": "^8.8.1",
+    "serverless-plugin-aws-alerts": "^1.7.5",
+    "serverless-plugin-typescript": "^2.1.2",
+    "serverless-prune-plugin": "^2.0.1",
+    "typescript": "^4.7.4"
+  }
+}

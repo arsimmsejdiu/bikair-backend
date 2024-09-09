@@ -1,0 +1,14 @@
+node_modules
+.serverless
+
+/database/seeds/*.json
+
+*.DS_Store
+
+env.*.yml
+.env
+database/prod/users.sql
+
+.idea
+logs
+.build

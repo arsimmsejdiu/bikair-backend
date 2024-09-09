@@ -1,0 +1,119 @@
+service: bikair-admins
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+        - ${file(../../serverless.common.yml):eventBridge}
+        - ${file(../../serverless.common.yml):lambdaPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-admins:
+    handler: src/functions/get-admins.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-me:
+    handler: src/functions/get-me.handler
+    events:
+      - httpApi:
+          path: /me
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-admin-details:
+    handler: src/functions/get-admin.handler
+    events:
+      - httpApi:
+          path: /{admin_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  post-admins:
+    handler: src/functions/post-admins.handler
+    events:
+      - httpApi:
+          path: /
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-admins:
+    handler: src/functions/put-admins.handler
+    events:
+      - httpApi:
+          path: /
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  delete-admins:
+    handler: src/functions/delete-admins.handler
+    events:
+      - httpApi:
+          path: /{admin_id}
+          method: DELETE
+          authorizer:
+            name: tokenAdminAuthorizer
+  post-batch:
+    handler: src/functions/post-batch.handler
+    events:
+      - httpApi:
+          path: /batch
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-batch:
+    handler: src/functions/put-batch.handler
+    events:
+      - httpApi:
+          path: /batch/{id}
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  delete-batch:
+    handler: src/functions/delete-batch.handler
+    events:
+      - httpApi:
+          path: /batch/{id}
+          method: DELETE
+          authorizer:
+            name: tokenAdminAuthorizer
+  play-batch:
+    handler: src/functions/play-batch.handler
+    timeout: 400

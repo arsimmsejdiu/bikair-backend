@@ -1,0 +1,92 @@
+service: bikair-marketings
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  serverless-offline:
+    noPrependStageInUrl: true
+    noAuth: true
+    ignoreJWTSignature: true
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    MICROSERVICE_PUSH_NOTIF_USER_ID: ${env:MICROSERVICE_PUSH_NOTIF_USER_ID}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):eventBridge}
+        - ${file(../../serverless.common.yml):lambdaPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-marketings:
+    handler: src/functions/get-marketings.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-marketing:
+    handler: src/functions/get-marketing.handler
+    events:
+      - httpApi:
+          path: /{id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  post-marketings:
+    handler: src/functions/post-marketings.handler
+    events:
+      - httpApi:
+          path: /
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  put-marketings:
+    handler: src/functions/put-marketings.handler
+    events:
+      - httpApi:
+          path: /{id}
+          method: PUT
+          authorizer:
+            name: tokenAdminAuthorizer
+  delete-marketings:
+    handler: src/functions/delete-marketings.handler
+    events:
+      - httpApi:
+          path: /{id}
+          method: DELETE
+          authorizer:
+            name: tokenAdminAuthorizer
+  play-marketings:
+    handler: src/functions/play-marketings.handler
+    timeout: 300

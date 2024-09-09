@@ -1,0 +1,79 @@
+service: bikair-lld
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  serverless-offline:
+    noPrependStageInUrl: true
+    noAuth: true
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  stage: ${opt:stage, 'develop'}
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    JWT_SECRET_LLD: ${env:JWT_SECRET_LLD}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    GEOLOKIT_MAIL: ${env:GEOLOKIT_MAIL}
+    GEOLOKIT_PW: ${env:GEOLOKIT_PW}
+    GEOLOKIT_BASE_URL: ${env:GEOLOKIT_BASE_URL}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi:
+    metrics: true
+    cors: true
+functions:
+  authorizerFunc:
+    handler: src/authorizer/tokenAdminAuthorizer.handler
+    timeout: 10
+  login:
+    handler: src/functions/login.handler
+    events:
+      - httpApi:
+          path: /auth/token
+          method: POST
+  forms-register:
+    handler: src/functions/forms-register.handler
+    events:
+      - httpApi:
+          path: /forms/register
+          method: POST
+  forms-booking:
+    handler: src/functions/forms-booking.handler
+    events:
+      - httpApi:
+          path: /forms/booking
+          method: POST
+  forms-repair:
+    handler: src/functions/forms-repair.handler
+    events:
+      - httpApi:
+          path: /forms/repair
+          method: POST

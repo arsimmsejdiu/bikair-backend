@@ -1,0 +1,116 @@
+service: bikair-authenticate
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  serverless-offline:
+    noPrependStageInUrl: true
+    noAuth: true
+    ignoreJWTSignature: true
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 1024
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    JWT_SECRET_TMP: ${env:JWT_SECRET_TMP}
+    JWT_SECRET: ${env:JWT_SECRET}
+    JWT_SECRET_ADMIN: ${env:JWT_SECRET_ADMIN}
+    ACCESS_JWT_LIMIT_CLIENT: ${env:ACCESS_JWT_LIMIT_CLIENT}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    BLACKLIST_MINUTE_THRESHOLD: ${env:BLACKLIST_MINUTE_THRESHOLD}
+    BLACKLIST_AMOUNT_THRESHOLD: ${env:BLACKLIST_AMOUNT_THRESHOLD}
+    IP_MAPPING_AMOUNT_THRESHOLD: ${env:BLACKLIST_AMOUNT_THRESHOLD}
+    IP_MAPPING_CHECK_LENGTH: ${env:IP_MAPPING_CHECK_LENGTH}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+        - ${file(../../serverless.common.yml):logQueryPolicy}
+        - ${file(../../serverless.common.yml):ipSetPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  auth-phone:
+    handler: src/functions/phone.handler
+    events:
+      - httpApi:
+          path: /phone
+          method: POST
+          authorizer:
+            name: apiAuthorizer
+  auth-confirm:
+    handler: src/functions/confirm.handler
+    events:
+      - httpApi:
+          path: /confirm
+          method: POST
+          authorizer:
+            name: apiAuthorizer
+  auth-logout:
+    handler: src/functions/logout.handler
+    events:
+      - httpApi:
+          path: /logout
+          method: POST
+          authorizer:
+            name: apiAuthorizer
+  auth-login:
+    handler: src/functions/login.handler
+    events:
+      - httpApi:
+          path: /login
+          method: POST
+          authorizer:
+            name: apiAuthorizer
+  auth-register:
+    handler: src/functions/register.handler
+    events:
+      - httpApi:
+          path: /register
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  auth-register-external:
+    handler: src/functions/register-external.handler
+    events:
+      - httpApi:
+          path: /register-external
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  auth-apikey:
+    handler: src/functions/api-key.handler
+    events:
+      - httpApi:
+          path: /check/api-key/{apiKey}
+          method: GET
+  auth-email-validate:
+    handler: src/functions/email-validate.handler
+    events:
+      - httpApi:
+          path: /email-validate
+          method: GET

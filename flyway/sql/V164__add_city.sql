@@ -1,0 +1,1 @@
+INSERT INTO cities (name, status, country_id, parking_spot, agglomeration, polygon) VALUES ('Atelier', 'INACTIVE', 1, false, 'OTHER', ST_GeomFromText('POLYGON((7.1293688 43.6178198, 7.1279740 43.6144176, 7.1274376 43.6128796, 7.1286178 43.6125844, 7.1299481 43.6161886, 7.1304846 43.6175402, 7.1293688 43.6178198))'));

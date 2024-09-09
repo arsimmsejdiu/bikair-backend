@@ -1,0 +1,91 @@
+service: bikair-event-log
+useDotenv: true
+frameworkVersion: '3'
+plugins:
+  - serverless-plugin-typescript
+  - serverless-prune-plugin
+  - serverless-plugin-aws-alerts
+  - serverless-offline
+custom:
+  stage: ${opt:stage, 'develop'}
+  prune:
+    automatic: true
+    number: 1
+  alerts:
+    stages:
+      - production
+    topics:
+      alarm:
+        topic: ${self:service}-${opt:stage}-alerts-alarm
+        notifications:
+          - protocol: email
+            endpoint: dev-alerts@bik-air.com
+    alarms:
+      - functionErrors
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: eu-west-3
+  memorySize: 400
+  timeout: 29
+  environment:
+    NODE_ENV: ${env:NODE_ENV}
+    MICROSERVICE_NOTIFICATION: ${env:MICROSERVICE_NOTIFICATION}
+    GOOGLE_GEOCODING_API_KEY: ${env:GOOGLE_GEOCODING_API_KEY}
+  iam:
+    role:
+      statements:
+        - ${file(../../serverless.common.yml):logGroupPolicy}
+        - ${file(../../serverless.common.yml):secretPolicy}
+        - ${file(../../serverless.common.yml):invokeNotificationPolicy}
+  vpc: ${file(../../serverless.common.yml):vpc}
+  httpApi: ${file(../../serverless.common.yml):httpApiConfig}
+functions:
+  get-events:
+    handler: src/functions/get-events.handler
+    events:
+      - httpApi:
+          path: /
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-user-event-logs:
+    handler: src/functions/get-user-event-logs.handler
+    events:
+      - httpApi:
+          path: /{user_id}
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  get-open-coords:
+    handler: src/functions/get-open-coords.handler
+    events:
+      - httpApi:
+          path: /open-coordinates
+          method: GET
+          authorizer:
+            name: tokenAdminAuthorizer
+  create-events:
+    handler: src/functions/create-events.handler
+    events:
+      - httpApi:
+          path: /
+          method: POST
+          authorizer:
+            name: apiAuthorizer
+  notify-lock-change:
+    handler: src/functions/notify-lock-change.handler
+    events:
+      - httpApi:
+          path: /lock-change
+          method: POST
+          authorizer:
+            name: tokenAdminAuthorizer
+  notify-lock-pause:
+    handler: src/functions/notify-lock-pause.handler
+    events:
+      - httpApi:
+          path: /lock-pause
+          method: POST
+          authorizer:
+            name: tokenClientAuthorizer

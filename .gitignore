@@ -1,0 +1,8 @@
+.idea
+.aws-sam
+
+node_modules
+build
+.build
+.env**
+.DS_Store

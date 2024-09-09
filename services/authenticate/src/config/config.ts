@@ -1,0 +1,14 @@
+export const NODE_ENV: string = process.env.NODE_ENV ?? "develop";
+export const JWT_SECRET_TMP: string | undefined = process.env.JWT_SECRET_TMP;
+export const JWT_SECRET: string | undefined = process.env.JWT_SECRET;
+export const JWT_SECRET_ADMIN: string | undefined = process.env.JWT_SECRET_ADMIN;
+export const GOOGLE_SERVICE_ACCOUNT_EMAIL: string | undefined = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+export const GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: string | undefined = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
+export const ACCESS_JWT_LIMIT_CLIENT: string = process.env.ACCESS_JWT_LIMIT_CLIENT ?? "30m";
+export const ACCESS_JWT_LIMIT_ADMIN = "12h";
+export const MICROSERVICE_NOTIFICATION: string = process.env.MICROSERVICE_NOTIFICATION ?? "";
+export const BLACKLIST_MINUTE_THRESHOLD: number = parseInt(process.env.BLACKLIST_MINUTE_THRESHOLD ?? "60");
+export const BLACKLIST_AMOUNT_THRESHOLD: number = parseInt(process.env.BLACKLIST_AMOUNT_THRESHOLD ?? "5");
+export const IP_MAPPING_AMOUNT_THRESHOLD: number = parseInt(process.env.IP_MAPPING_AMOUNT_THRESHOLD ?? "3");
+export const IP_MAPPING_CHECK_LENGTH: number = parseInt(process.env.IP_MAPPING_CHECK_LENGTH ?? "5");
+export const SLACK_NOTIFICATION = "slack-notification";

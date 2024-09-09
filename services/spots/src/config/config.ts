@@ -1,0 +1,4 @@
+export const NODE_ENV = process.env.NODE_ENV;
+export const MICROSERVICE_NOTIFICATION = process.env.MICROSERVICE_NOTIFICATION;
+export const GOOGLE_GEOCODING_API_KEY = process.env.GOOGLE_GEOCODING_API_KEY;
+

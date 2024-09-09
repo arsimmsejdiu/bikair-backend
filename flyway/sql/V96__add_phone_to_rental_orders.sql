@@ -1,0 +1,1 @@
+alter table rental_orders add column if not exists phone varchar(15) not null;

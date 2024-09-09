@@ -1,0 +1,1 @@
+alter table rental_orders add column if not exists locale varchar(5) not null default 'fr';

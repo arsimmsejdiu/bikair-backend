@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS ip_mapping
+(
+    id SERIAL PRIMARY KEY,
+    ip VARCHAR(50)  NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    country VARCHAR(2) NOT NULL,
+    is_blocked BOOLEAN NOT NULL DEFAULT FALSE,
+    number_attempts INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);

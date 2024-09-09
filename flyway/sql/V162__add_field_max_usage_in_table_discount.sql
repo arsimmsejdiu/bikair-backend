@@ -1,0 +1,3 @@
+
+ALTER TABLE discounts ADD column IF NOT EXISTS max_usage INTEGER NOT NULL DEFAULT 0;
+
